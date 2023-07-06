@@ -1,0 +1,169 @@
+---
+# AZ Delivery ESP32
+# LED strip SK6812 RGBWW
+# AZ Delivery SG90 Micro Servo motor 9G
+# Wiring:
+#   - ESP32 PIN 5v <-> PWR <-> LED +
+#   - ESP32 PIN GND <-> GND <-> LED GND
+#   - ESP32 PIN 12 <-> LED DATA
+
+substitutions:
+  devicename: "solar-expression-flower"
+  leds: "30"
+  led_data_pin: GPIO12
+  petals_servo_pin: GPIO14
+
+esphome:
+  name: ${devicename}
+  project:
+    name: berghmans.solar-expression-flower
+    version: "1.0"
+
+esp32:
+  board: nodemcu-32s
+
+web_server:
+  port: 80
+
+time:
+  - platform: homeassistant
+    id: my_time
+
+wifi:
+  ap:
+    ssid: ${devicename}
+
+captive_portal:
+
+logger:
+
+ota:
+
+light:
+  - platform: neopixelbus
+    type: GRBW
+    variant: SK6812
+    pin: ${led_data_pin}
+    num_leds: ${leds}
+    name: Flower Light
+    id: solarexpression_flower_light
+    effects:
+      - addressable_scan:
+      - addressable_color_wipe:
+      - addressable_rainbow:
+      - addressable_fireworks:
+
+output:
+  - platform: ledc
+    id: pwm_output
+    pin: ${petals_servo_pin}
+    frequency: 50 Hz
+
+servo:
+  - id: servo_control
+    output: pwm_output
+    auto_detach_time: 0s
+    transition_length: 5s
+
+sensor:
+  #Servomotor position sensor
+  - platform: template
+    name: servo sensor position
+    id: servo_sensor
+    on_value:
+      then:
+        - script.execute: script_servo
+
+#Switches
+switch:
+  #Restart esp
+  - platform: restart
+    name: gateway restart
+
+  #Servo switch with start and end position
+  - platform: template
+    id: servo_control_switch
+    name: servo start/end
+    restore_state: true
+    turn_on_action:
+      - sensor.template.publish:
+          id: servo_sensor
+          state: !lambda "return id(servo_start).state;"
+      - switch.template.publish:
+          id: servo_control_switch
+          state: true
+      - servo.write:
+          id: servo_control
+          level: !lambda "return (id(servo_start).state/100);"
+    turn_off_action:
+      - sensor.template.publish:
+          id: servo_sensor
+          state: !lambda "return id(servo_stop).state;"
+      - switch.template.publish:
+          id: servo_control_switch
+          state: false
+      - servo.write:
+          id: servo_control
+          level: !lambda "return (id(servo_stop).state/100);"
+#Script servo script
+script:
+  - id: script_servo
+    then:
+      - if:
+          condition:
+            - lambda: "return id(servo_sensor).state == id(servo_start).state;"
+          then:
+            - sensor.template.publish:
+                id: servo_sensor
+                state: !lambda "return (id(servo_start).state/100);"
+            - switch.turn_on: servo_control_switch
+      - if:
+          condition:
+            and:
+              - lambda: "return id(servo_sensor).state == id(servo_stop).state;"
+          then:
+            - sensor.template.publish:
+                id: servo_sensor
+                state: !lambda "return id(servo_stop).state;"
+            - switch.turn_off: servo_control_switch
+
+#Adding a slider to control the servo
+number:
+  - platform: template
+    name: servo position
+    min_value: -100
+    max_value: 100
+    update_interval: 5s
+    mode: slider
+    lambda: "return id(servo_sensor).state;"
+    step: 1
+    set_action:
+      then:
+        - servo.write:
+            id: servo_control
+            level: !lambda "return x / 100.0;"
+        - sensor.template.publish:
+            id: servo_sensor
+            state: !lambda "return x;"
+
+  #Specify the initial position of the servo
+  - platform: template
+    name: servo start position
+    id: servo_start
+    min_value: -100
+    max_value: 100
+    mode: box #slider/box
+    step: 1
+    optimistic: true
+    restore_value: true
+
+  #Specify the final position of the servo
+  - platform: template
+    name: servo end position
+    id: servo_stop
+    min_value: -100
+    max_value: 100
+    mode: box #slider/box
+    step: 1
+    optimistic: true
+    restore_value: true
