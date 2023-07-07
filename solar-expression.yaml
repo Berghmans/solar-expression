@@ -5,13 +5,14 @@
 # Wiring:
 #   - ESP32 PIN 5v <-> PWR <-> LED +
 #   - ESP32 PIN GND <-> GND <-> LED GND
-#   - ESP32 PIN 12 <-> LED DATA
+#   - ESP32 PIN 16 <-> LED DATA
+#   - ESP32 PIN 17 <-> SERVO DATA
 
 substitutions:
   devicename: "solar-expression-flower"
   leds: "30"
-  led_data_pin: GPIO12
-  petals_servo_pin: GPIO14
+  led_data_pin: GPIO16
+  petals_servo_pin: GPIO17
 
 esphome:
   name: ${devicename}
