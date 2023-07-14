@@ -28,6 +28,10 @@ substitutions:
   petals_closed: "-50"
   ha_sensor_power_consumption: "sensor.flower_input_power_consumption"
   ha_sensor_power_consumption_threshold: "sensor.flower_input_power_consumption_threshold"
+  ha_sensor_power_consumption_grid: "sensor.flower_input_power_consumption_grid"
+  ha_sensor_battery_capacity: "sensor.flower_input_battery_capacity"
+  ha_sensor_battery_charge: "sensor.flower_input_battery_charge"
+  ha_sensor_battery_charge_rate: "sensor.flower_input_battery_charge_rate"
 
 esphome:
   name: ${name}
@@ -110,7 +114,7 @@ sensor:
         - script.execute: script_pistil_effect
         - script.execute: script_pistil_color
 
-  - platform: homeassistant
+  - platform: homeassistant # Input from HA - Power consumption 
     name: "Power consumption from Home Assistant"
     entity_id: ${ha_sensor_power_consumption}
     on_value:
@@ -118,12 +122,44 @@ sensor:
           id: power_consumption
           value: !lambda "return x;"
 
-  - platform: homeassistant
+  - platform: homeassistant # Input from HA - Power consumption threshold 
     name: "Power consumption threshold from Home Assistant"
     entity_id: ${ha_sensor_power_consumption_threshold}
     on_value:
       - number.set:
           id: power_consumption_threshold
+          value: !lambda "return x;"
+
+  - platform: homeassistant # Input from HA - Power consumption grid 
+    name: "Power consumption grid from Home Assistant"
+    entity_id: ${ha_sensor_power_consumption_grid}
+    on_value:
+      - number.set:
+          id: power_consumption_grid
+          value: !lambda "return x;"
+
+  - platform: homeassistant # Input from HA - Battery capacity 
+    name: "Battery capacity from Home Assistant"
+    entity_id: ${ha_sensor_battery_capacity}
+    on_value:
+      - number.set:
+          id: battery_capacity
+          value: !lambda "return x;"
+
+  - platform: homeassistant # Input from HA - Battery charge 
+    name: "Battery charge from Home Assistant"
+    entity_id: ${ha_sensor_battery_charge}
+    on_value:
+      - number.set:
+          id: battery_charge
+          value: !lambda "return x;"
+
+  - platform: homeassistant # Input from HA - Battery charge rate 
+    name: "Battery charge rate from Home Assistant"
+    entity_id: ${ha_sensor_battery_charge_rate}
+    on_value:
+      - number.set:
+          id: battery_charge_rate
           value: !lambda "return x;"
 
 number:
@@ -154,6 +190,7 @@ number:
         - script.execute: script_power_percentage
 
   - name: Power consumption grid # Input: The power usage grid (in kW - positive for drawdown and negative for injecting)
+    id: power_consumption_grid
     platform: template
     mode: auto
     optimistic: true
@@ -190,6 +227,7 @@ number:
         - script.execute: script_battery_percentage
 
   - name: Battery charge rate # Input: The battery charge rate (in kW - positive for charging and negative for discharging)
+    id: battery_charge_rate
     platform: template
     mode: auto
     optimistic: true
