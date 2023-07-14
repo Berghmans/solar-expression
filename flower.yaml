@@ -91,9 +91,17 @@ sensor:
     name: Battery percentage
     id: battery_percentage
     unit_of_measurement: "%"
+    accuracy_decimals: 1
+
+  - platform: template
+    name: Power percentage # Power consumption percentage compared to threshold
+    id: power_percentage
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
 
 number:
   - name: Power consumption # Input: The current power usage (in kW)
+    id: power_consumption
     platform: template
     mode: auto
     optimistic: true
@@ -101,15 +109,22 @@ number:
     max_value: 20
     step: 0.001
     unit_of_measurement: kW
+    on_value:
+      then:
+        - script.execute: script_power_percentage
 
   - name: Power consumption threshold # Input: The current power usage threshold (in kW)
+    id: power_consumption_threshold
     platform: template
     mode: auto
     optimistic: true
-    min_value: 0
+    min_value: 0.001
     max_value: 20
     step: 0.001
     unit_of_measurement: kW
+    on_value:
+      then:
+        - script.execute: script_power_percentage
 
   - name: Power consumption grid # Input: The power usage grid (in kW - positive for drawdown and negative for injecting)
     platform: template
@@ -163,3 +178,8 @@ script:
       - sensor.template.publish:
           id: battery_percentage
           state: !lambda "return std::max(0.0f, std::min(100.0f, (id(battery_charge).state * 100 /id(battery_capacity).state)));"
+  - id: script_power_percentage
+    then:
+      - sensor.template.publish:
+          id: power_percentage
+          state: !lambda "return std::max(0.0f, (id(power_consumption).state * 100 /id(power_consumption_threshold).state));"
