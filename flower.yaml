@@ -56,8 +56,7 @@ logger:
 ota:
 
 light:
-  # Pistil lights
-  - platform: neopixelbus
+  - platform: neopixelbus # Pistil lights
     type: GRBW
     variant: SK6812
     pin: ${led_data_pin}
@@ -65,10 +64,12 @@ light:
     name: Pistil light
     id: pistil_light
     effects:
-      - addressable_scan:
-      - addressable_color_wipe:
-      - addressable_rainbow:
-      - addressable_fireworks:
+      - pulse:
+          name: "Pulsing"
+          transition_length: 1s
+          update_interval: 2s
+          min_brightness: 20%
+          max_brightness: 100%
 
 output:
   - platform: ledc
@@ -102,6 +103,9 @@ sensor:
     id: power_percentage
     unit_of_measurement: "%"
     accuracy_decimals: 1
+    on_value:
+      then:
+        - script.execute: script_pistil_effect
 
 number:
   - name: Power consumption # Input: The current power usage (in kW)
@@ -192,3 +196,14 @@ script:
       - sensor.template.publish:
           id: petals_position
           state: !lambda "return (int(${petals_closed}) + int((int(${petals_open}) - int(${petals_closed})) * id(battery_percentage).state / 100.0f));"
+  - id: script_pistil_effect
+    then:
+      - lambda: |
+          auto call = id(pistil_light).turn_on();
+          power_percentage = id(power_percentage).state
+          if (power_percentage > 75) {
+            call.set_effect("Pulsing");
+          } else {
+            call.set_effect(0);
+          }
+          call.perform();
