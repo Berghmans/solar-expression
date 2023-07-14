@@ -106,6 +106,7 @@ sensor:
     on_value:
       then:
         - script.execute: script_pistil_effect
+        - script.execute: script_pistil_color
 
 number:
   - name: Power consumption # Input: The current power usage (in kW)
@@ -215,3 +216,12 @@ script:
               call.perform();
             }
           }
+  - id: script_pistil_color
+    then:
+      - lambda: |
+          float pct = id(power_percentage).state;
+          float red = std::min(1.0f, 2.0f - pct / 50.0f);
+          float green = std::min(1.0f, pct / 50.0f);
+          auto call = id(pistil_light).turn_on();
+          call.set_rgf(red, green, 0.0f);
+          call.perform();
