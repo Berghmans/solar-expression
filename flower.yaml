@@ -1,0 +1,135 @@
+---
+# AZ Delivery ESP32
+# LED strip SK6812 RGBWW
+# AZ Delivery SG90 Micro Servo motor 9G
+# Wiring:
+#   - ESP32 PIN 5v <-> PWR <-> LED +
+#   - ESP32 PIN GND <-> GND <-> LED GND
+#   - ESP32 PIN 16 <-> LED DATA
+#   - ESP32 PIN 17 <-> SERVO DATA
+#
+# Inputs:
+#   - The current power usage (in kW)
+#   - The power usage threshold (in kW)
+#   - The power usage grid (in kW - positive for drawdown and negative for injecting)
+#   - The battery capacity (in kWh)
+#   - The battery charge (in kWh)
+#   - The battery charge rate (in kW - positive for charging and negative for discharging)
+
+substitutions:
+  name: "solar-expression-flower"
+  project_name: "Berghmans.Solar Expression Flower"
+  project_version: "1.1.1"
+  leds: "30"
+  led_data_pin: GPIO16
+  petals_servo_pin: GPIO17
+  petals_open: 50
+  petals_closed: -50
+
+esphome:
+  name: ${name}
+  project:
+    name: ${project_name}
+    version: ${project_version}
+
+esp32:
+  board: nodemcu-32s
+
+web_server:
+  port: 80
+
+time:
+  - platform: homeassistant
+    id: my_time
+
+wifi:
+  ap:
+    ssid: ${devicename}
+
+captive_portal:
+
+logger:
+
+ota:
+
+light:
+  # Pistil lights
+  - platform: neopixelbus
+    type: GRBW
+    variant: SK6812
+    pin: ${led_data_pin}
+    num_leds: ${leds}
+    name: Pistil light
+    id: pistil_light
+    effects:
+      - addressable_scan:
+      - addressable_color_wipe:
+      - addressable_rainbow:
+      - addressable_fireworks:
+
+output:
+  - platform: ledc
+    id: petals_output
+    pin: ${petals_servo_pin}
+    frequency: 50 Hz
+
+servo:
+  - id: petals_control
+    output: petals_output
+    auto_detach_time: 0s
+    transition_length: 5s
+
+sensor:
+  #Servomotor position sensor
+  - platform: template
+    name: Petals position
+    id: petals_position
+
+number:
+  - name: Power consumption # Input: The current power usage (in kW)
+    platform: template
+    mode: auto
+    min_value: 0
+    max_value: 20
+    step: 0.001
+    unit_of_measurement: kW
+
+  - name: Power consumption threshold # Input: The current power usage threshold (in kW)
+    platform: template
+    mode: auto
+    min_value: 0
+    max_value: 20
+    step: 0.001
+    unit_of_measurement: kW
+
+  - name: Power consumption grid # Input: The power usage grid (in kW - positive for drawdown and negative for injecting)
+    platform: template
+    mode: auto
+    min_value: -20
+    max_value: 20
+    step: 0.001
+    unit_of_measurement: kW
+
+  - name: Battery capacity # Input: The battery capacity (in kWh)
+    platform: template
+    mode: auto
+    min_value: 0
+    max_value: 50
+    step: 0.1
+    unit_of_measurement: kWh
+
+  - name: Battery charge # Input: The battery charge (in kWh)
+    platform: template
+    mode: auto
+    min_value: 0
+    max_value: 50
+    step: 0.1
+    unit_of_measurement: kWh
+
+  - name: Battery charge rate # Input: The battery charge rate (in kW - positive for charging and negative for discharging)
+    platform: template
+    mode: auto
+    min_value: -20
+    max_value: 20
+    step: 0.001
+    unit_of_measurement: kW

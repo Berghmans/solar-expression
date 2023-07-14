@@ -1,0 +1,26 @@
+---
+substitutions:
+  devicename: "flower-solar"
+  leds: "30"
+
+packages:
+  berghmans.solar-expression-flower:
+    url: https://github.com/Berghmans/solar-expression
+    ref: main
+    file: flower.yaml
+    refresh: 1d
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  ap: # Enable fallback hotspot (captive portal) in case wifi connection fails
+    ssid: ${devicename}
+    password: !secret hotspot_password
+
+api:
+  encryption:
+    key: !secret esphome_api_encryption
+
+ota:
+  password: !secret esphome_api_password
