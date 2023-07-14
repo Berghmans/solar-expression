@@ -208,6 +208,7 @@ script:
               call.perform();
             }
           } else {
+            ESP_LOGI("custom", "The effect name is: %s", current_effect);
             if (current_effect != "") {
               auto call = id(pistil_light).turn_on();
               call.set_effect(0);
