@@ -191,4 +191,4 @@ script:
     then:
       - sensor.template.publish:
           id: petals_position
-          state: !lambda "return (int(${petals_close}) + int((int(${petals_open}) - int(${petals_close})) * id(battery_percentage).state));"
+          state: !lambda "return (int(${petals_closed}) + int((int(${petals_open}) - int(${petals_closed})) * id(battery_percentage).state));"
