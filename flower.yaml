@@ -162,4 +162,4 @@ script:
     then:
       - sensor.template.publish:
           id: battery_percentage
-          state: !lambda "return std::max(0.0, std::min(100, (id(battery_charge).state * 100 /id(battery_capacity).state)));"
+          state: !lambda "return std::max(0.0, std::min(100.0, (id(battery_charge).state * 100 /id(battery_capacity).state)));"
