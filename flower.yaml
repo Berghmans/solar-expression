@@ -200,8 +200,7 @@ script:
     then:
       - lambda: |
           auto call = id(pistil_light).turn_on();
-          power_threshold = id(power_percentage).state
-          if (power_threshold > 75) {
+          if (id(power_percentage).state > 75) {
             call.set_effect("Pulsing");
           } else {
             call.set_effect(0);
