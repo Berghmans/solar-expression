@@ -23,8 +23,8 @@ substitutions:
   leds: "30"
   led_data_pin: GPIO16
   petals_servo_pin: GPIO17
-  petals_open: 50
-  petals_closed: -50
+  petals_open: "50"
+  petals_closed: "-50"
 
 esphome:
   name: ${name}

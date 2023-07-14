@@ -1,6 +1,6 @@
 ---
 substitutions:
-  devicename: "flower-solar"
+  name: "flower-solar"
   leds: "30"
 
 packages:
