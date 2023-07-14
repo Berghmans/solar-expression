@@ -200,6 +200,7 @@ script:
     then:
       - lambda: |
           std::string current_effect = id(pistil_light).get_effect_name();
+          bool is_on = id(pistil_light).current_values.is_on()
           float power_threshold = id(power_percentage).state;
           if (power_threshold > 75) {
             if (current_effect != "Pulsing") {
@@ -208,8 +209,7 @@ script:
               call.perform();
             }
           } else {
-            ESP_LOGI("custom", "The effect name is: %s", current_effect);
-            if (current_effect != "") {
+            if ((current_effect != "None") || !is_on) {
               auto call = id(pistil_light).turn_on();
               call.set_effect(0);
               call.perform();
