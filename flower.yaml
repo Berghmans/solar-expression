@@ -218,8 +218,9 @@ script:
           }
   - id: script_pistil_color
     then:
+      # Percentage (pct) is 100% for green and 0% for red
       - lambda: |
-          float pct = id(power_percentage).state;
+          float pct = 100.0f - id(power_percentage).state;
           float red = std::min(1.0f, 2.0f - pct / 50.0f);
           float green = std::min(1.0f, pct / 50.0f);
           auto call = id(pistil_light).turn_on();
