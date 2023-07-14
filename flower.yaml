@@ -223,5 +223,5 @@ script:
           float red = std::min(1.0f, 2.0f - pct / 50.0f);
           float green = std::min(1.0f, pct / 50.0f);
           auto call = id(pistil_light).turn_on();
-          call.set_rgf(red, green, 0.0f);
+          call.set_rgb(red, green, 0.0f);
           call.perform();
