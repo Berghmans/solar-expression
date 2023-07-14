@@ -200,7 +200,7 @@ script:
     then:
       - lambda: |
           auto call = id(pistil_light).turn_on();
-          if (id(power_percentage).state > 75 {
+          if (id(power_percentage).state > 75) {
             if (id(pistil_light).get_effect_name() != "Pulsing") {
               call.set_effect("Pulsing");
             }
