@@ -44,7 +44,7 @@ time:
 
 wifi:
   ap:
-    ssid: ${devicename}
+    ssid: ${name}
 
 captive_portal:
 
