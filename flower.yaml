@@ -199,8 +199,8 @@ script:
   - id: script_pistil_effect
     then:
       - lambda: |
-          std::string current_effect = id(pistil_light).get_effect_name()
-          float power_threshold = id(power_percentage).state
+          std::string current_effect = id(pistil_light).get_effect_name();
+          float power_threshold = id(power_percentage).state;
           if (power_threshold > 75) {
             if (current_effect != "Pulsing") {
               auto call = id(pistil_light).turn_on();
