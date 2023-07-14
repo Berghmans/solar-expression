@@ -86,12 +86,16 @@ sensor:
   - platform: template
     name: Petals position
     id: petals_position
+    accuracy_decimals: 0
 
   - platform: template
     name: Battery percentage
     id: battery_percentage
     unit_of_measurement: "%"
     accuracy_decimals: 1
+    on_value:
+      then:
+        - script.execute: script_petals_position
 
   - platform: template
     name: Power percentage # Power consumption percentage compared to threshold
@@ -183,3 +187,8 @@ script:
       - sensor.template.publish:
           id: power_percentage
           state: !lambda "return std::max(0.0f, (id(power_consumption).state * 100 /id(power_consumption_threshold).state));"
+  - id: script_petals_position
+    then:
+      - sensor.template.publish:
+          id: petals_position
+          state: !lambda "return (int(${petals_close}) + int((int(${petals_open}) - int(${petals_close})) * id(battery_percentage).state));"
