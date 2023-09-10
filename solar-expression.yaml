@@ -85,7 +85,7 @@ switch:
   - platform: template
     id: servo_control_switch
     name: servo start/end
-    restore_state: true
+    restore_mode: RESTORE_DEFAULT_ON
     turn_on_action:
       - sensor.template.publish:
           id: servo_sensor
